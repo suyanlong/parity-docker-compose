@@ -1,0 +1,52 @@
+version: "3.3"
+
+services:
+  C:
+    image: suyanlong/paritypoa
+    ports:
+      - "8549:8549"
+      - "8550:8550"
+      - "30305:30305"
+    environment:
+      - JSONRPC_PORT=8549
+      - WS_PORT=8550
+      - NETWORK_PORT=30305
+      - AUTHORITY_COMPANY=C
+    volumes:
+      - chain_C:/mnt/io.parity.ethereum
+    secrets:
+      - authority.C.address
+      - authority.C.passphrase
+      - authority.C.password
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels: [NODE=C]
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 1
+        window: 120s
+      # service update configuration
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: continue
+        monitor: 60s
+        max_failure_ratio: 0.3
+
+volumes:
+  ? chain_C
+
+networks:
+  default:
+    external:
+      name: poa_default
+
+secrets:
+  authority.C.address:
+    external: true
+  authority.C.passphrase:
+    external: true
+  authority.C.password:
+    external: true
